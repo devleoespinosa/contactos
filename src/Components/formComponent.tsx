@@ -1,5 +1,17 @@
 import React from "react"
 import { Contacto } from "../DTO/Contacto.ts";
+import { Box, Button, TextField } from "@mui/material";
+import axios from 'axios';
+
+export const guardarContacto = async (contacto) => {
+    try {
+        const response = await axios.post(`http://localhost:8080/contactos/add`, contacto);
+        return response.data;
+    } catch (error) {
+        console.error("Error al guardar el contacto:", error);
+        throw error;
+    }
+};
 
 interface FormularioContactoProps {
     setContactos: React.Dispatch<React.SetStateAction<Contacto[]>>;
@@ -22,7 +34,7 @@ function Formulario({setContactos, contacts}:FormularioContactoProps) {
         }); 
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         var accion = true
         for (let index = 0; index < contacts.length; index++) {
@@ -39,8 +51,18 @@ function Formulario({setContactos, contacts}:FormularioContactoProps) {
                 accion = false
             }
         }
-        if(accion)
-            setContactos((contactos) =>[...contactos, new Contacto(formData.nombre, formData.apellido, formData.correo, formData.celular)])
+        if(accion){
+            var id = await guardarContacto(
+                {
+                    orden: contacts.length,
+                    nombre: formData.nombre,
+                    apellido: formData.apellido,
+                    correo: formData.correo,
+                    telefono: formData.celular
+                }
+            )
+            setContactos((contactos) =>[...contactos, new Contacto(id,formData.nombre, formData.apellido, formData.correo, formData.celular, contacts.length)])
+        }
         setFormData({
             nombre: '',
             apellido: '',
@@ -51,23 +73,60 @@ function Formulario({setContactos, contacts}:FormularioContactoProps) {
     
     return(
         <>
-        <div style={{width: '100%'}}>
+        <div style={{width: '20rem'}}>
             <div style={{width:'100%', display:'flex', justifyContent:'center'}}>
-                <form onSubmit={handleSubmit}>
-                    <label htmlFor="nombre">Nombre:</label><br />
-                    <input type="text" id="nombre" name="nombre" value={formData.nombre} onChange={handleChange} required /><br /><br />
+                <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400 }}>
+                    <TextField
+                        label="Nombre"
+                        variant="outlined"
+                        id="nombre"
+                        name="nombre"
+                        value={formData.nombre}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
 
-                    <label htmlFor="apellido">Apellido:</label><br />
-                    <input type="text" id="apellido" name="apellido" value={formData.apellido} onChange={handleChange} required /><br /><br />
+                    <TextField
+                        label="Apellido"
+                        variant="outlined"
+                        id="apellido"
+                        name="apellido"
+                        value={formData.apellido}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
 
-                    <label htmlFor="correo">Correo electrónico:</label><br />
-                    <input type="email" id="correo" name="correo" value={formData.correo} onChange={handleChange} required /><br /><br />
+                    <TextField
+                        label="Correo electrónico"
+                        variant="outlined"
+                        type="email"
+                        id="correo"
+                        name="correo"
+                        value={formData.correo}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
 
-                    <label htmlFor="celular">Celular:</label><br />
-                    <input type="tel" id="celular" name="celular" value={formData.celular} onChange={handleChange} pattern="[0-9]{10}" required /><br /><br />
+                    <TextField
+                        label="Celular"
+                        variant="outlined"
+                        type="tel"
+                        id="celular"
+                        name="celular"
+                        value={formData.celular}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                        inputProps={{ pattern: "[0-9]{10}" }}
+                    />
 
-                    <input type="submit" value="Enviar" />
-                </form>
+                    <Button type="submit" variant="contained" sx={{backgroundColor:'#87CEEB', color:'black'}}>
+                        Enviar
+                    </Button>
+                </Box>
             </div>
         </div>
         </>

@@ -1,35 +1,45 @@
 import React from 'react';
 import { Contacto } from '../DTO/Contacto';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import DeleteComponent from './deleteComponent.tsx';
 
 interface Props {
-    contactos : Contacto []
+    contactos : Contacto [],
+    canDelete: Boolean,
+    setContactos: React.Dispatch<React.SetStateAction<Contacto[]>>;
 }
 
-function Tabla({contactos}:Props) {
+function Tabla({contactos, canDelete, setContactos}:Props) {
     return(
         <>
-        <div style={{width: '100%', borderRight:'2px solid black'}}>
+        <div style={{width: '100%'}}>
             <div style={{width:'100%', display:'flex', justifyContent:'center'}}>
-            <table cellPadding="10" >
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Correo</th>
-                        <th>Teléfono</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {contactos.map((persona, index) => (
-                        <tr key={index}>
-                            <td>{persona.nombre}</td>
-                            <td>{persona.apellido}</td>
-                            <td>{persona.correo}</td>
-                            <td>{persona.telefono}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <TableContainer>
+                <Table>
+                    <TableHead sx={{backgroundColor:'#87CEEB'}} >
+                        <TableRow>
+                            <TableCell>Nombre</TableCell>
+                            <TableCell>Apellido</TableCell>
+                            <TableCell>Correo</TableCell>
+                            <TableCell>Teléfono</TableCell>
+                            {canDelete ? <TableCell>Acciones</TableCell> : <></>}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {contactos.map((persona, index)=> (
+                            <TableRow key={index}>
+                                <TableCell>
+                                    {persona.nombre}
+                                </TableCell>
+                                <TableCell>{persona.apellido}</TableCell>
+                                <TableCell>{persona.correo}</TableCell>
+                                <TableCell>{persona.telefono}</TableCell>
+                                {canDelete ? <DeleteComponent setContactos={setContactos} contactos={contactos} contactoID={persona.id} /> : <></>}
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
             </div>
         </div>
         </>
